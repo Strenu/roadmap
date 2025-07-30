@@ -1,0 +1,739 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plan Estratégico v7: Reto 1.000.000€</title>
+    <style>
+        :root {
+            --color-bg: #f4f7f9;
+            --color-card-bg: #ffffff;
+            --color-text: #333;
+            --color-primary: #0052cc;
+            --color-secondary: #5e6c7c;
+            --color-border: #dfe1e5;
+            --color-header-bg: #fafbfc;
+            --color-details-bg: #f8f9fa;
+            --color-pendiente-bg: #ffe2a3; --color-pendiente-text: #5d4300;
+            --color-progreso-bg: #a3e1ff; --color-progreso-text: #00426e;
+            --color-completado-bg: #a3ffb8; --color-completado-text: #005d1c;
+            --shadow: 0 5px 15px rgba(0,0,0,0.08);
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: var(--color-bg);
+            color: var(--color-text);
+            margin: 0;
+            padding: 20px;
+            font-size: 16px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: auto;
+            background: var(--color-card-bg);
+            border-radius: 10px;
+            box-shadow: var(--shadow);
+        }
+        header {
+            background: linear-gradient(45deg, #0041a1, #0062ff);
+            color: white;
+            padding: 25px 35px;
+            text-align: center;
+            border-top-left-radius: 10px;
+            border-top-right-radius: 10px;
+        }
+        header h1 { margin: 0; font-size: 2.2em; }
+        header p { margin: 5px 0 0; opacity: 0.9; }
+        .content { padding: 35px; }
+        .phase-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 40px;
+            border-bottom: 2px solid var(--color-border);
+            padding-bottom: 15px;
+        }
+        .phase-header h2 { color: var(--color-primary); margin: 0; }
+        progress { width: 200px; height: 12px; border-radius: 6px; overflow: hidden; }
+        progress::-webkit-progress-bar { background-color: #e9ecef; }
+        progress::-webkit-progress-value { background-color: var(--color-primary); transition: width 0.3s ease; }
+        
+        .task-group { border: 1px solid var(--color-border); border-radius: 5px; margin-top: 20px; }
+        details { border-bottom: 1px solid var(--color-border); }
+        details:last-child { border-bottom: none; }
+        summary {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 15px 20px;
+            cursor: pointer;
+            background-color: var(--color-header-bg);
+            list-style: none;
+        }
+        summary::-webkit-details-marker { display: none; }
+        summary:before { content: '▶'; font-size: 0.7em; margin-right: 15px; transition: transform 0.2s; }
+        details[open] > summary:before { transform: rotate(90deg); }
+        .main-task-content { display: flex; align-items: center; gap: 15px; flex-grow: 1; }
+        .subtasks { padding: 10px 20px 20px 50px; background: #fff; }
+        ul { list-style: none; padding-left: 0; }
+        li {
+            padding: 12px 0;
+            border-bottom: 1px solid #f1f3f5;
+        }
+         li:last-child {
+            border-bottom: none;
+        }
+        .subtask-header { display: flex; align-items: center; gap: 15px; }
+        .subtask-details {
+            background: var(--color-details-bg);
+            border-left: 3px solid var(--color-primary);
+            padding: 15px;
+            margin-top: 10px;
+            border-radius: 4px;
+        }
+        .subtask-details p { margin-top: 0; font-size: 0.95em; color: var(--color-secondary); }
+        .subtask-details ol { padding-left: 20px; margin-bottom: 0; }
+        .subtask-details li { padding: 5px 0; border: none; font-size: 0.9em;}
+        
+        .toggle-steps {
+            font-size: 0.8em;
+            color: var(--color-primary);
+            text-decoration: none;
+            cursor: pointer;
+            margin-left: auto;
+            padding: 4px 8px;
+            border-radius: 4px;
+            white-space: nowrap;
+        }
+        .toggle-steps:hover { background-color: #e9ecef; }
+        
+        .status-select { padding: 6px 12px; border-radius: 15px; font-size: 0.8em; font-weight: 600; border: none; -webkit-appearance: none; appearance: none; cursor: pointer; text-align: center; }
+        .status-pendiente { background-color: var(--color-pendiente-bg); color: var(--color-pendiente-text); }
+        .status-progreso { background-color: var(--color-progreso-bg); color: var(--color-progreso-text); }
+        .status-completado { background-color: var(--color-completado-bg); color: var(--color-completado-text); }
+
+        input[type="checkbox"] { width: 1.4em; height: 1.4em; cursor: pointer; flex-shrink: 0; }
+        .completed-task .task-text, .completed-task > li .task-text-container { text-decoration: line-through; color: var(--color-secondary); opacity: 0.8; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Plan Estratégico v7</h1>
+            <p>Reto 1.000.000€</p>
+        </header>
+        <div class="content">
+
+            <div class="phase" id="fase1">
+                <div class="phase-header">
+                    <h2>Fase 1: Fundación y Marca</h2>
+                    <progress id="progress-fase1" value="0" max="100"></progress>
+                </div>
+                <div class="task-group">
+                    <details>
+                        <summary>
+                            <div class="main-task-content"><input type="checkbox"><span class="task-text">Definición Estratégica</span></div>
+                            <select class="status-select status-pendiente"><option value="pendiente" selected>Pendiente</option><option value="progreso">En Progreso</option><option value="completado">Completado</option></select>
+                        </summary>
+                        <div class="subtasks"><ul>
+                            <li>
+                                <div class="subtask-header">
+                                    <input type="checkbox"><div class="task-text-container"><span class="task-text">Realizar análisis DAFO.</span></div>
+                                    <a href="#" class="toggle-steps">Ver pasos</a>
+                                </div>
+                                <div class="subtask-details" style="display:none;">
+                                    <p><strong>Objetivo:</strong> Entender tus ventajas competitivas y los retos del proyecto antes de empezar.</p>
+                                    <ol>
+                                        <li>Crea una matriz 2x2.</li>
+                                        <li><strong>Fortalezas:</strong> Anota tus puntos fuertes (ej: Ing. Informático, experto en AWS, motivado).</li>
+                                        <li><strong>Oportunidades:</strong> Anota las oportunidades del mercado (ej: digitalización de PYMES, auge de la nube).</li>
+                                        <li><strong>Debilidades:</strong> Anota tus puntos débiles (ej: poca experiencia en ventas, tiempo limitado).</li>
+                                        <li><strong>Amenazas:</strong> Anota los riesgos externos (ej: alta competencia, crisis económica).</li>
+                                    </ol>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="subtask-header">
+                                    <input type="checkbox"><div class="task-text-container"><span class="task-text">Elegir un nicho de mercado.</span></div>
+                                    <a href="#" class="toggle-steps">Ver pasos</a>
+                                </div>
+                                <div class="subtask-details" style="display:none;">
+                                    <p><strong>Objetivo:</strong> Evitar ser generalista. Un nicho te permite cobrar más y ser más relevante.</p>
+                                    <ol>
+                                        <li>Investiga 3 nichos (ej: webs en AWS para SaaS, apps para gimnasios, digitalización de empresas locales).</li>
+                                        <li>Analiza 5 competidores en cada uno.</li>
+                                        <li>Elige uno y redáctalo en una frase: "Ayudo a [nicho] a conseguir [resultado] mediante [servicio]".</li>
+                                    </ol>
+                                </div>
+                            </li>
+                        </ul></div>
+                    </details>
+                    <details>
+                        <summary>
+                            <div class="main-task-content"><input type="checkbox"><span class="task-text">Creación de la Marca</span></div>
+                            <select class="status-select status-pendiente"><option value="pendiente" selected>Pendiente</option><option value="progreso">En Progreso</option><option value="completado">Completado</option></select>
+                        </summary>
+                        <div class="subtasks"><ul>
+                           <li>
+                                <div class="subtask-header">
+                                    <input type="checkbox"><div class="task-text-container"><span class="task-text">Definir nombre y comprar dominios.</span></div>
+                                    <a href="#" class="toggle-steps">Ver pasos</a>
+                                </div>
+                                <div class="subtask-details" style="display:none;">
+                                    <p><strong>Objetivo:</strong> Asegurar tu identidad digital principal.</p>
+                                    <ol>
+                                        <li>Haz una lluvia de ideas de 10 nombres.</li>
+                                        <li>Verifica la disponibilidad del .com y .es en un registrador de dominios.</li>
+                                        <li>Compra ambos si es posible para proteger la marca.</li>
+                                    </ol>
+                                </div>
+                            </li>
+                             <li>
+                                <div class="subtask-header">
+                                    <input type="checkbox"><div class="task-text-container"><span class="task-text">Crear identidad visual inicial.</span></div>
+                                    <a href="#" class="toggle-steps">Ver pasos</a>
+                                </div>
+                                <div class="subtask-details" style="display:none;">
+                                    <p><strong>Objetivo:</strong> Establecer una imagen profesional sin gastar mucho tiempo ni dinero al principio.</p>
+                                    <ol>
+                                        <li>Crea un tablero en Pinterest con 15-20 imágenes que te inspiren.</li>
+                                        <li>Usa Coolors.co para generar una paleta de 4 colores.</li>
+                                        <li>Elige 2 tipografías en Google Fonts (una para títulos, otra para texto).</li>
+                                        <li>Crea un logo simple en Canva o contrata a alguien en Fiverr (presupuesto: 30-70€).</li>
+                                    </ol>
+                                </div>
+                            </li>
+                        </ul></div>
+                    </details>
+                    <details>
+                        <summary>
+                            <div class="main-task-content"><input type="checkbox"><span class="task-text">Activos Digitales y Legales</span></div>
+                            <select class="status-select status-pendiente"><option value="pendiente" selected>Pendiente</option><option value="progreso">En Progreso</option><option value="completado">Completado</option></select>
+                        </summary>
+                        <div class="subtasks"><ul>
+                           <li>
+                                <div class="subtask-header">
+                                    <input type="checkbox"><div class="task-text-container"><span class="task-text">Lanzar landing page v1.0.</span></div>
+                                    <a href="#" class="toggle-steps">Ver pasos</a>
+                                </div>
+                                <div class="subtask-details" style="display:none;">
+                                    <p><strong>Objetivo:</strong> Tener un escaparate digital profesional que genere confianza y capture leads.</p>
+                                    <ol>
+                                        <li>Redacta textos para 5 secciones: Inicio, Servicios, Sobre Mí, Portfolio y Contacto.</li>
+                                        <li>Diseña un wireframe simple en Figma o en papel.</li>
+                                        <li>Desarrolla la web y asegúrate de que sea 100% responsive.</li>
+                                        <li>Cómprale el dominio y súbela a un hosting (Netlify o Vercel tienen planes gratuitos).</li>
+                                    </ol>
+                                </div>
+                            </li>
+                             <li>
+                                <div class="subtask-header">
+                                    <input type="checkbox"><div class="task-text-container"><span class="task-text">Configurar "stack" de herramientas.</span></div>
+                                    <a href="#" class="toggle-steps">Ver pasos</a>
+                                </div>
+                                <div class="subtask-details" style="display:none;">
+                                    <p><strong>Objetivo:</strong> Preparar tu infraestructura de trabajo para ser eficiente desde el día uno.</p>
+                                    <ol>
+                                        <li>Crea un email profesional (ej: `hola@tuempresa.com`).</li>
+                                        <li>Configura una herramienta de gestión de proyectos (Notion, Trello).</li>
+                                        <li>Abre una cuenta en un sistema de facturación (Holded, Quipu).</li>
+                                        <li>Configura Google Analytics y Search Console y conéctalos a tu web.</li>
+                                    </ol>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="subtask-header">
+                                    <input type="checkbox"><div class="task-text-container"><span class="task-text">Trámites legales iniciales.</span></div>
+                                    <a href="#" class="toggle-steps">Ver pasos</a>
+                                </div>
+                                <div class="subtask-details" style="display:none;">
+                                    <p><strong>Objetivo:</strong> Operar legalmente desde el primer momento para evitar problemas futuros.</p>
+                                    <ol>
+                                        <li>Habla con un gestor para entender tus obligaciones.</li>
+                                        <li>Date de alta como autónomo en la Seguridad Social y Hacienda.</li>
+                                        <li>Abre una cuenta bancaria separada exclusivamente para el negocio.</li>
+                                    </ol>
+                                </div>
+                            </li>
+                        </ul></div>
+                    </details>
+                </div>
+            </div>
+
+            <div class="phase" id="fase2">
+                <div class="phase-header">
+                    <h2>Fase 2: Búsqueda Activa de Clientes</h2>
+                    <progress id="progress-fase2" value="0" max="100"></progress>
+                </div>
+                <div class="task-group">
+                    <details>
+                        <summary>
+                            <div class="main-task-content"><input type="checkbox"><span class="task-text">Preparación para la Venta</span></div>
+                            <select class="status-select status-pendiente"><option value="pendiente" selected>Pendiente</option><option value="progreso">En Progreso</option><option value="completado">Completado</option></select>
+                        </summary>
+                        <div class="subtasks"><ul>
+                            <li>
+                                <div class="subtask-header">
+                                    <input type="checkbox"><div class="task-text-container"><span class="task-text">Crear una plantilla de propuesta.</span></div>
+                                    <a href="#" class="toggle-steps">Ver pasos</a>
+                                </div>
+                                <div class="subtask-details" style="display:none;">
+                                    <p><strong>Objetivo:</strong> Tener un documento profesional y reutilizable para enviar a clientes potenciales, ahorrando tiempo.</p>
+                                    <ol>
+                                        <li>Usa Canva o Google Docs para diseñar una plantilla con tu logo y colores.</li>
+                                        <li>Estructúrala: Portada, Entendimiento del problema, Solución propuesta, Fases del proyecto, Presupuesto, Sobre mí.</li>
+                                        <li>Enfócate en los beneficios para el cliente, no solo en las características técnicas.</li>
+                                    </ol>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="subtask-header">
+                                    <input type="checkbox"><div class="task-text-container"><span class="task-text">Definir el "Elevator Pitch".</span></div>
+                                    <a href="#" class="toggle-steps">Ver pasos</a>
+                                </div>
+                                <div class="subtask-details" style="display:none;">
+                                    <p><strong>Objetivo:</strong> Poder explicar qué haces y para quién en menos de 30 segundos de forma clara y atractiva.</p>
+                                    <ol>
+                                        <li>Usa la fórmula: "Ayudo a [tu nicho] a conseguir [resultado deseado] a través de [tu servicio principal]".</li>
+                                        <li>Ejemplo: "Ayudo a pequeñas empresas de SaaS a optimizar sus costes en la nube desarrollando una infraestructura eficiente en AWS".</li>
+                                        <li>Practícalo en voz alta hasta que suene natural.</li>
+                                    </ol>
+                                </div>
+                            </li>
+                        </ul></div>
+                    </details>
+                    <details>
+                        <summary>
+                            <div class="main-task-content"><input type="checkbox"><span class="task-text">Prospección y Contacto</span></div>
+                            <select class="status-select status-pendiente"><option value="pendiente" selected>Pendiente</option><option value="progreso">En Progreso</option><option value="completado">Completado</option></select>
+                        </summary>
+                        <div class="subtasks"><ul>
+                           <li>
+                                <div class="subtask-header">
+                                    <input type="checkbox"><div class="task-text-container"><span class="task-text">Crear lista de 50 prospectos.</span></div>
+                                    <a href="#" class="toggle-steps">Ver pasos</a>
+                                </div>
+                                <div class="subtask-details" style="display:none;">
+                                    <p><strong>Objetivo:</strong> Tener una lista de contactos cualificados para no improvisar la búsqueda de clientes.</p>
+                                    <ol>
+                                        <li>Usa LinkedIn Sales Navigator (puedes probarlo gratis) o la búsqueda avanzada.</li>
+                                        <li>Busca perfiles que encajen con tu "Cliente Ideal" (ej: "CEO de empresa de logística en España").</li>
+                                        <li>Añádelos a una hoja de cálculo con su nombre, empresa, cargo y URL de LinkedIn.</li>
+                                    </ol>
+                                </div>
+                            </li>
+                             <li>
+                                <div class="subtask-header">
+                                    <input type="checkbox"><div class="task-text-container"><span class="task-text">Contactar 10 prospectos por semana.</span></div>
+                                    <a href="#" class="toggle-steps">Ver pasos</a>
+                                </div>
+                                <div class="subtask-details" style="display:none;">
+                                    <p><strong>Objetivo:</strong> Crear un hábito de prospección constante para llenar tu embudo de ventas.</p>
+                                    <ol>
+                                        <li>Dedica 2 bloques de 1 hora a la semana exclusivamente a esto.</li>
+                                        <li>Envía mensajes personalizados en LinkedIn o emails. No vendas, busca iniciar una conversación.</li>
+                                        <li>Ejemplo: "Hola [Nombre], he visto que tu empresa [Nombre Empresa] se dedica a [sector]. Me especializo en [tu nicho] y me preguntaba si estáis explorando formas de mejorar [un problema común]".</li>
+                                        <li>Haz seguimiento de las respuestas en tu hoja de cálculo o CRM.</li>
+                                    </ol>
+                                </div>
+                            </li>
+                        </ul></div>
+                    </details>
+                    <details>
+                        <summary>
+                            <div class="main-task-content"><input type="checkbox"><span class="task-text">Cierre y Primeros Proyectos</span></div>
+                            <select class="status-select status-pendiente"><option value="pendiente" selected>Pendiente</option><option value="progreso">En Progreso</option><option value="completado">Completado</option></select>
+                        </summary>
+                        <div class="subtasks"><ul>
+                           <li>
+                                <div class="subtask-header">
+                                    <input type="checkbox"><div class="task-text-container"><span class="task-text">Realizar la primera reunión de venta.</span></div>
+                                    <a href="#" class="toggle-steps">Ver pasos</a>
+                                </div>
+                                <div class="subtask-details" style="display:none;">
+                                    <p><strong>Objetivo:</strong> Diagnosticar el problema del cliente y presentar tu solución como la mejor opción.</p>
+                                    <ol>
+                                        <li>Prepara la reunión investigando a fondo al cliente y su empresa.</li>
+                                        <li>Durante la reunión, escucha el 80% del tiempo. Haz preguntas para entender su "dolor".</li>
+                                        <li>Presenta tu solución conectándola directamente con los problemas que ha mencionado.</li>
+                                        <li>Termina con los siguientes pasos claros (ej: "Os enviaré la propuesta mañana").</li>
+                                    </ol>
+                                </div>
+                            </li>
+                             <li>
+                                <div class="subtask-header">
+                                    <input type="checkbox"><div class="task-text-container"><span class="task-text">Firmar primer contrato y facturar.</span></div>
+                                    <a href="#" class="toggle-steps">Ver pasos</a>
+                                </div>
+                                <div class="subtask-details" style="display:none;">
+                                    <p><strong>Objetivo:</strong> Formalizar la relación comercial y asegurar el primer ingreso.</p>
+                                    <ol>
+                                        <li>Envía la propuesta y haz seguimiento a los 2-3 días si no hay respuesta.</li>
+                                        <li>Una vez aceptada, envía un contrato simple (puedes encontrar plantillas online) y la primera factura (normalmente el 50% por adelantado).</li>
+                                        <li>No empieces a trabajar hasta que el contrato esté firmado y el pago recibido.</li>
+                                    </ol>
+                                </div>
+                            </li>
+                        </ul></div>
+                    </details>
+                </div>
+            </div>
+
+            <div class="phase" id="fase3">
+                <div class="phase-header">
+                    <h2>Fase 3: Crecimiento y Sistematización</h2>
+                    <progress id="progress-fase3" value="0" max="100"></progress>
+                </div>
+                <div class="task-group">
+                    <details>
+                        <summary>
+                            <div class="main-task-content"><input type="checkbox"><span class="task-text">Productización y Oferta de Valor</span></div>
+                            <select class="status-select status-pendiente"><option value="pendiente" selected>Pendiente</option><option value="progreso">En Progreso</option><option value="completado">Completado</option></select>
+                        </summary>
+                        <div class="subtasks"><ul>
+                            <li>
+                                <div class="subtask-header">
+                                    <input type="checkbox"><div class="task-text-container"><span class="task-text">Definir 3 paquetes de servicios.</span></div>
+                                    <a href="#" class="toggle-steps">Ver pasos</a>
+                                </div>
+                                <div class="subtask-details" style="display:none;">
+                                    <p><strong>Objetivo:</strong> Dejar de vender horas y empezar a vender soluciones con precio fijo, lo que simplifica la venta.</p>
+                                    <ol>
+                                        <li>Crea 3 paquetes (ej: "Web de Impacto", "E-commerce Pro", "MVP para Startup").</li>
+                                        <li>Para cada uno, detalla: ¿A quién va dirigido? ¿Qué problema soluciona? ¿Qué incluye exactamente?</li>
+                                        <li>Asigna un precio fijo basado en el valor que aporta, no solo en las horas que tardas.</li>
+                                        <li>Añade estos paquetes a una nueva página de "Servicios" en tu web.</li>
+                                    </ol>
+                                </div>
+                            </li>
+                             <li>
+                                <div class="subtask-header">
+                                    <input type="checkbox"><div class="task-text-container"><span class="task-text">Crear oferta de Ingresos Recurrentes.</span></div>
+                                    <a href="#" class="toggle-steps">Ver pasos</a>
+                                </div>
+                                <div class="subtask-details" style="display:none;">
+                                    <p><strong>Objetivo:</strong> Generar ingresos predecibles cada mes que te den estabilidad financiera.</p>
+                                    <ol>
+                                        <li>Define 2 tiers de mantenimiento (ej: "Plan Esencial" por 150€/mes y "Plan Crecimiento" por 400€/mes).</li>
+                                        <li>El "Esencial" debe cubrir hosting, seguridad, actualizaciones y backups.</li>
+                                        <li>El "Crecimiento" debe incluir lo anterior más un banco de 2-4 horas para mejoras.</li>
+                                        <li>Integra esta oferta en todas tus propuestas comerciales como un añadido de alto valor.</li>
+                                    </ol>
+                                </div>
+                            </li>
+                        </ul></div>
+                    </details>
+                    <details>
+                        <summary>
+                            <div class="main-task-content"><input type="checkbox"><span class="task-text">Sistematización y Delegación</span></div>
+                            <select class="status-select status-pendiente"><option value="pendiente" selected>Pendiente</option><option value="progreso">En Progreso</option><option value="completado">Completado</option></select>
+                        </summary>
+                        <div class="subtasks"><ul>
+                           <li>
+                                <div class="subtask-header">
+                                    <input type="checkbox"><div class="task-text-container"><span class="task-text">Documentar flujo de trabajo.</span></div>
+                                    <a href="#" class="toggle-steps">Ver pasos</a>
+                                </div>
+                                <div class="subtask-details" style="display:none;">
+                                    <p><strong>Objetivo:</strong> Crear un manual de operaciones para que los proyectos se entreguen con calidad consistente, sin depender de ti.</p>
+                                    <ol>
+                                        <li>En Notion o un documento, mapea las 5 fases de tus proyectos: Venta, Onboarding, Diseño, Desarrollo, Lanzamiento.</li>
+                                        <li>Para cada fase, crea una checklist de tareas (ej: "Enviar propuesta", "Recibir 50% de adelanto", "Revisión de diseño con cliente").</li>
+                                        <li>Esto será la base para delegar y contratar en el futuro.</li>
+                                    </ol>
+                                </div>
+                            </li>
+                             <li>
+                                <div class="subtask-header">
+                                    <input type="checkbox"><div class="task-text-container"><span class="task-text">Contratar primer freelance clave.</span></div>
+                                    <a href="#" class="toggle-steps">Ver pasos</a>
+                                </div>
+                                <div class="subtask-details" style="display:none;">
+                                    <p><strong>Objetivo:</strong> Liberar tu tiempo de las tareas que no son tu especialidad principal para enfocarte en crecer.</p>
+                                    <ol>
+                                        <li>Identifica tu mayor cuello de botella (probablemente diseño UI/UX o copywriting).</li>
+                                        <li>Prepara un pequeño test o una descripción clara del tipo de trabajo que necesitas.</li>
+                                        <li>Busca en plataformas como Upwork, Malt o contactando directamente a perfiles en Behance.</li>
+                                        <li>Realiza 2-3 entrevistas cortas y elige a alguien con quien tengas buena comunicación.</li>
+                                        <li>Empieza con un proyecto pequeño para probar la relación de trabajo.</li>
+                                    </ol>
+                                </div>
+                            </li>
+                        </ul></div>
+                    </details>
+                </div>
+            </div>
+
+            <div class="phase" id="fase4">
+                <div class="phase-header">
+                    <h2>Fase 4: Desarrollo de Productos</h2>
+                    <progress id="progress-fase4" value="0" max="100"></progress>
+                </div>
+                <div class="task-group">
+                    <details>
+                        <summary>
+                            <div class="main-task-content"><input type="checkbox"><span class="task-text">Ideación y Validación</span></div>
+                            <select class="status-select status-pendiente"><option value="pendiente" selected>Pendiente</option><option value="progreso">En Progreso</option><option value="completado">Completado</option></select>
+                        </summary>
+                        <div class="subtasks"><ul>
+                            <li>
+                                <div class="subtask-header">
+                                    <input type="checkbox"><div class="task-text-container"><span class="task-text">Identificar problemas recurrentes.</span></div>
+                                    <a href="#" class="toggle-steps">Ver pasos</a>
+                                </div>
+                                <div class="subtask-details" style="display:none;">
+                                    <p><strong>Objetivo:</strong> Encontrar ideas de productos basadas en los problemas reales que ya has solucionado para tus clientes.</p>
+                                    <ol>
+                                        <li>Revisa tus proyectos pasados. ¿Qué tareas o problemas se repiten constantemente?</li>
+                                        <li>Ejemplos: "Todos los clientes necesitan una configuración inicial de SEO", "Muchos luchan con la optimización de imágenes".</li>
+                                        <li>Haz una lista de 10 problemas recurrentes.</li>
+                                    </ol>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="subtask-header">
+                                    <input type="checkbox"><div class="task-text-container"><span class="task-text">Validar la idea con clientes.</span></div>
+                                    <a href="#" class="toggle-steps">Ver pasos</a>
+                                </div>
+                                <div class="subtask-details" style="display:none;">
+                                    <p><strong>Objetivo:</strong> Asegurarte de que hay interés real en tu idea de producto antes de construirlo.</p>
+                                    <ol>
+                                        <li>Elige la idea de producto más prometedora de tu lista.</li>
+                                        <li>Llama a 5 de tus antiguos clientes y cuéntales la idea.</li>
+                                        <li>Pregúntales: "¿Pagarías por una solución a este problema? ¿Cuánto?".</li>
+                                        <li>Crea una landing page simple para el producto y mide cuánta gente se apunta a la lista de espera.</li>
+                                    </ol>
+                                </div>
+                            </li>
+                        </ul></div>
+                    </details>
+                    <details>
+                        <summary>
+                            <div class="main-task-content"><input type="checkbox"><span class="task-text">Creación del Producto Mínimo Viable (MVP)</span></div>
+                            <select class="status-select status-pendiente"><option value="pendiente" selected>Pendiente</option><option value="progreso">En Progreso</option><option value="completado">Completado</option></select>
+                        </summary>
+                        <div class="subtasks"><ul>
+                           <li>
+                                <div class="subtask-header">
+                                    <input type="checkbox"><div class="task-text-container"><span class="task-text">Definir el alcance del MVP.</span></div>
+                                    <a href="#" class="toggle-steps">Ver pasos</a>
+                                </div>
+                                <div class="subtask-details" style="display:none;">
+                                    <p><strong>Objetivo:</strong> Construir la versión más pequeña posible del producto que aporte valor y solucione el problema principal.</p>
+                                    <ol>
+                                        <li>Haz una lista de todas las funcionalidades que te gustaría que tuviera el producto.</li>
+                                        <li>Priorízalas usando la matriz de Eisenhower (Urgente/Importante).</li>
+                                        <li>Selecciona solo las 2-3 funcionalidades absolutamente esenciales para la primera versión.</li>
+                                    </ol>
+                                </div>
+                            </li>
+                             <li>
+                                <div class="subtask-header">
+                                    <input type="checkbox"><div class="task-text-container"><span class="task-text">Desarrollar y lanzar el MVP.</span></div>
+                                    <a href="#" class="toggle-steps">Ver pasos</a>
+                                </div>
+                                <div class="subtask-details" style="display:none;">
+                                    <p><strong>Objetivo:</strong> Poner el producto en manos de usuarios reales lo antes posible para obtener feedback.</p>
+                                    <ol>
+                                        <li>Dedica un tiempo fijo cada semana al desarrollo del producto.</li>
+                                        <li>Lanza el MVP a tu lista de espera y a tus clientes de confianza.</li>
+                                        <li>Ofrece un precio reducido a los primeros usuarios a cambio de su feedback.</li>
+                                        <li>Crea un sistema simple para recoger opiniones (un formulario, un grupo de WhatsApp).</li>
+                                    </ol>
+                                </div>
+                            </li>
+                        </ul></div>
+                    </details>
+                </div>
+            </div>
+
+            <div class="phase" id="fase5">
+                <div class="phase-header">
+                    <h2>Fase 5: Escala y Valoración</h2>
+                    <progress id="progress-fase5" value="0" max="100"></progress>
+                </div>
+                 <div class="task-group">
+                    <details>
+                        <summary>
+                            <div class="main-task-content"><input type="checkbox"><span class="task-text">Profesionalización de Marketing y Ventas</span></div>
+                            <select class="status-select status-pendiente"><option value="pendiente" selected>Pendiente</option><option value="progreso">En Progreso</option><option value="completado">Completado</option></select>
+                        </summary>
+                        <div class="subtasks"><ul>
+                            <li>
+                                <div class="subtask-header">
+                                    <input type="checkbox"><div class="task-text-container"><span class="task-text">Implementar un CRM.</span></div>
+                                    <a href="#" class="toggle-steps">Ver pasos</a>
+                                </div>
+                                <div class="subtask-details" style="display:none;">
+                                    <p><strong>Objetivo:</strong> Dejar de gestionar clientes en un Excel. Un CRM te da visibilidad y te ayuda a no perder oportunidades.</p>
+                                    <ol>
+                                        <li>Crea una cuenta en HubSpot CRM (su plan gratuito es muy potente).</li>
+                                        <li>Define tu pipeline de ventas con 4-5 etapas (ej: Contacto inicial, Reunión agendada, Propuesta enviada, Negociación, Ganado/Perdido).</li>
+                                        <li>Importa tus contactos actuales y empieza a registrar cada nueva interacción.</li>
+                                    </ol>
+                                </div>
+                            </li>
+                            <li>
+                                <div class="subtask-header">
+                                    <input type="checkbox"><div class="task-text-container"><span class="task-text">Lanzar una campaña de Ads de pago.</span></div>
+                                    <a href="#" class="toggle-steps">Ver pasos</a>
+                                </div>
+                                <div class="subtask-details" style="display:none;">
+                                    <p><strong>Objetivo:</strong> Pasar de la prospección manual a un sistema predecible que genere leads de forma automática.</p>
+                                    <ol>
+                                        <li>Elige una plataforma: LinkedIn Ads si tu cliente es corporativo, Google Ads si buscan activamente tus servicios.</li>
+                                        <li>Define un público muy específico (ej: "Directores de tecnología en empresas de logística en España").</li>
+                                        <li>Crea un anuncio simple que ofrezca una solución a un problema claro.</li>
+                                        <li>Empieza con un presupuesto pequeño y controlado (300-500€/mes) y mide el Coste por Lead (CPL).</li>
+                                    </ol>
+                                </div>
+                            </li>
+                        </ul></div>
+                    </details>
+                    <details>
+                        <summary>
+                            <div class="main-task-content"><input type="checkbox"><span class="task-text">Construcción del Equipo Principal</span></div>
+                            <select class="status-select status-pendiente"><option value="pendiente" selected>Pendiente</option><option value="progreso">En Progreso</option><option value="completado">Completado</option></select>
+                        </summary>
+                        <div class="subtasks"><ul>
+                            <li>
+                                <div class="subtask-header">
+                                    <input type="checkbox"><div class="task-text-container"><span class="task-text">Contratar un Project Manager.</span></div>
+                                    <a href="#" class="toggle-steps">Ver pasos</a>
+                                </div>
+                                <div class="subtask-details" style="display:none;">
+                                    <p><strong>Objetivo:</strong> Comprar tu tiempo. Delegar la operación diaria para poder enfocarte en la estrategia y crecimiento.</p>
+                                    <ol>
+                                        <li>Redacta una oferta de trabajo detallando las responsabilidades (comunicación con cliente, gestión de tareas, control de calidad).</li>
+                                        <li>Publica la oferta en LinkedIn, InfoJobs, etc.</li>
+                                        <li>Realiza un proceso de selección en 3 fases: filtro de CV, entrevista telefónica/corta, y una prueba práctica/entrevista final.</li>
+                                        <li>Haz un onboarding estructurado durante las primeras 2 semanas.</li>
+                                    </ol>
+                                </div>
+                            </li>
+                             <li>
+                                <div class="subtask-header">
+                                    <input type="checkbox"><div class="task-text-container"><span class="task-text">Establecer una rutina de reuniones.</span></div>
+                                    <a href="#" class="toggle-steps">Ver pasos</a>
+                                </div>
+                                <div class="subtask-details" style="display:none;">
+                                    <p><strong>Objetivo:</strong> Crear una cadencia de comunicación que mantenga al equipo alineado y motivado.</p>
+                                    <ol>
+                                        <li><strong>Lunes (15 min):</strong> Reunión de "sprint" semanal para definir objetivos de la semana.</li>
+                                        <li><strong>Diario (opcional):</strong> "Daily" de 10 min por Slack para desbloquear problemas.</li>
+                                        <li><strong>Quincenal/Mensual:</strong> Reuniones 1-a-1 con cada miembro del equipo para hablar de su desarrollo y bienestar.</li>
+                                    </ol>
+                                </div>
+                            </li>
+                        </ul></div>
+                    </details>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const toggleLinks = document.querySelectorAll('.toggle-steps');
+            toggleLinks.forEach(link => {
+                link.addEventListener('click', function(event) {
+                    event.preventDefault();
+                    const detailsDiv = this.closest('.subtask-header').nextElementSibling;
+                    if (detailsDiv.style.display === 'none' || detailsDiv.style.display === '') {
+                        detailsDiv.style.display = 'block';
+                        this.textContent = 'Ocultar pasos';
+                    } else {
+                        detailsDiv.style.display = 'none';
+                        this.textContent = 'Ver pasos';
+                    }
+                });
+            });
+
+            function setSelectState(selectElement, state) {
+                if(!selectElement) return;
+                selectElement.value = state;
+                selectElement.className = 'status-select';
+                selectElement.classList.add('status-' + state);
+            }
+
+            function updateParentTask(detailsElement) {
+                const subtaskCheckboxes = detailsElement.querySelectorAll('.subtasks input[type="checkbox"]');
+                if (subtaskCheckboxes.length === 0) return;
+
+                const parentCheckbox = detailsElement.querySelector('summary input[type="checkbox"]');
+                const parentStatusSelect = detailsElement.querySelector('summary .status-select');
+                
+                const totalSubtasks = subtaskCheckboxes.length;
+                const completedSubtasks = Array.from(subtaskCheckboxes).filter(cb => cb.checked).length;
+
+                if (completedSubtasks === totalSubtasks) {
+                    parentCheckbox.checked = true;
+                    setSelectState(parentStatusSelect, 'completado');
+                } else if (completedSubtasks > 0) {
+                    parentCheckbox.checked = false;
+                    setSelectState(parentStatusSelect, 'progreso');
+                } else {
+                    parentCheckbox.checked = false;
+                    setSelectState(parentStatusSelect, 'pendiente');
+                }
+                
+                detailsElement.classList.toggle('completed-task', parentCheckbox.checked);
+                updateProgress(detailsElement.closest('.phase').id);
+            }
+
+            function updateProgress(phaseId) {
+                const phaseElement = document.getElementById(phaseId);
+                if (!phaseElement) return;
+
+                const checkboxes = phaseElement.querySelectorAll('.task-group input[type="checkbox"]');
+                const totalTasks = checkboxes.length;
+                if (totalTasks === 0) return;
+
+                const completedTasks = Array.from(checkboxes).filter(cb => cb.checked).length;
+                const percentage = (completedTasks / totalTasks) * 100;
+                
+                const progressBar = document.getElementById('progress-' + phaseId);
+                if(progressBar) {
+                    progressBar.value = percentage;
+                }
+            }
+
+            const subtaskCheckboxes = document.querySelectorAll('.subtasks input[type="checkbox"]');
+            subtaskCheckboxes.forEach(checkbox => {
+                checkbox.addEventListener('change', function() {
+                    this.closest('li').classList.toggle('completed-task', this.checked);
+                    const parentDetails = this.closest('details');
+                    updateParentTask(parentDetails);
+                });
+            });
+
+            const parentCheckboxes = document.querySelectorAll('summary input[type="checkbox"]');
+            parentCheckboxes.forEach(checkbox => {
+                checkbox.addEventListener('change', function() {
+                    const parentDetails = this.closest('details');
+                    const subtasks = parentDetails.querySelectorAll('.subtasks input[type="checkbox"]');
+                    
+                    subtasks.forEach(subCb => {
+                        subCb.checked = this.checked;
+                        subCb.closest('li').classList.toggle('completed-task', this.checked);
+                    });
+                    
+                    updateParentTask(parentDetails);
+                });
+            });
+
+            const statusSelectors = document.querySelectorAll('.status-select');
+            statusSelectors.forEach(select => {
+                select.addEventListener('change', function() {
+                   setSelectState(this, this.value);
+                });
+            });
+            
+            document.querySelectorAll('details').forEach(details => updateParentTask(details));
+        });
+    </script>
+</body>
+</html>
